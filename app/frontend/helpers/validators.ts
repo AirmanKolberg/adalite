@@ -20,6 +20,9 @@ const sendAddressValidator = (fieldValue: string) => {
   if (isValidBootstrapAddress(fieldValue)) {
     return null
   }
+  if (fieldValue.startsWith('pool')) {
+    return {code: InternalErrorReason.SendAddressPoolId}
+  }
   return {code: InternalErrorReason.SendAddressInvalidAddress}
 }
 
