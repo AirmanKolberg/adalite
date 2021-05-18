@@ -50,17 +50,17 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
   }
 
   function* makeBulkAccountIndexIterator() {
-    yield [0, 5] // [0, 5)
-    yield [5, 17] // [5, 17)
+    yield [0, 4]
+    yield [5, 16]
     for (let i = 17; true; i += 18) {
-      yield [i, i + 18]
+      yield [i, i + 17]
     }
   }
 
   function getAccountIndexExportInterval(accountIndex: number): [number, number] {
     const bulkAccountIndexIterator = makeBulkAccountIndexIterator()
     for (const [startIndex, endIndex] of bulkAccountIndexIterator) {
-      if (accountIndex >= startIndex && accountIndex < endIndex) {
+      if (accountIndex >= startIndex && accountIndex <= endIndex) {
         return [startIndex, endIndex]
       }
     }
@@ -72,7 +72,7 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     const accountIndex = derivationPath[2] - HARDENED_THRESHOLD
     const [startIndex, endIndex] = getAccountIndexExportInterval(accountIndex)
 
-    for (let i = startIndex; i < endIndex; i += 1) {
+    for (let i = startIndex; i <= endIndex; i += 1) {
       const nextAccountIndex = i + HARDENED_THRESHOLD
       const nextAccountPath = [...derivationPath.slice(0, -1), nextAccountIndex]
       paths.push(nextAccountPath)
@@ -83,7 +83,6 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
      * since during byron era only the first account was used
      */
     if (accountIndex === 0 && !paths.includes(BYRON_V2_PATH)) paths.push(BYRON_V2_PATH)
-
     return paths
   }
 
