@@ -53,8 +53,8 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     const accountIndex = derivationPath[2] - HARDENED_THRESHOLD
     const currentAccountPage = Math.floor(accountIndex / MAX_BULK_EXPORT_AMOUNT)
 
-    // we want to scale the number of exported keys up to 4 times the MAX_BULK_EXPORT_AMOUNT
-    const nAccounts = Math.min(currentAccountPage + 1, 4) * MAX_BULK_EXPORT_AMOUNT
+    // we want to scale the number of exported keys up to 3 times the MAX_BULK_EXPORT_AMOUNT
+    const nAccounts = Math.min(currentAccountPage + 1, 3) * MAX_BULK_EXPORT_AMOUNT
 
     for (let i = 0; i < nAccounts; i += 1) {
       const nextAccountIndex = currentAccountPage * MAX_BULK_EXPORT_AMOUNT + i + HARDENED_THRESHOLD
