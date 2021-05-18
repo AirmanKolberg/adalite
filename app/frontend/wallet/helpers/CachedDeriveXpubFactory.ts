@@ -17,9 +17,9 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
         absDerivationPath.length === 0 || indexIsHardened(absDerivationPath.slice(-1)[0])
 
       /*
-      * we create pubKeyBulk only if the derivation path is from shelley era
-      * since there should be only one byron account exported in the fist shelley pubKey bulk
-      */
+       * we create pubKeyBulk only if the derivation path is from shelley era
+       * since there should be only one byron account exported in the fist shelley pubKey bulk
+       */
 
       if (deriveHardened) {
         const derivationPaths =
@@ -34,10 +34,10 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     }
 
     /*
-    * we await the derivation of the key so in case the derivation fails
-    * the key is not added to the cache
-    * this approach depends on the key derivation happening sychronously
-    */
+     * we await the derivation of the key so in case the derivation fails
+     * the key is not added to the cache
+     * this approach depends on the key derivation happening sychronously
+     */
 
     return derivedXpubs[memoKey]
   }
@@ -53,25 +53,28 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     const accountIndex = derivationPath[2] - HARDENED_THRESHOLD
     const currentAccountPage = Math.floor(accountIndex / MAX_BULK_EXPORT_AMOUNT)
 
-    for (let i = 0; i < MAX_BULK_EXPORT_AMOUNT; i += 1) {
+    // we want to scale the number of exported keys up to 4 times the MAX_BULK_EXPORT_AMOUNT
+    const nAccounts = Math.min(currentAccountPage + 1, 4) * MAX_BULK_EXPORT_AMOUNT
+
+    for (let i = 0; i < nAccounts; i += 1) {
       const nextAccountIndex = currentAccountPage * MAX_BULK_EXPORT_AMOUNT + i + HARDENED_THRESHOLD
       const nextAccountPath = [...derivationPath.slice(0, -1), nextAccountIndex]
       paths.push(nextAccountPath)
     }
 
     /*
-    * in case of the account 0 we append also the byron path
-    * since during byron era only the first account was used
-    */
+     * in case of the account 0 we append also the byron path
+     * since during byron era only the first account was used
+     */
     if (accountIndex === 0 && !paths.includes(BYRON_V2_PATH)) paths.push(BYRON_V2_PATH)
 
     return paths
   }
 
   /*
-  * on top of the original deriveXpubHardenedFn this is priming
-  * the cache of derived keys to minimize the number of prompts on hardware wallets
-  */
+   * on top of the original deriveXpubHardenedFn this is priming
+   * the cache of derived keys to minimize the number of prompts on hardware wallets
+   */
   async function _deriveXpubsHardenedFn(derivationPaths: BIP32Path[]): Promise<any> {
     const xPubBulk = await deriveXpubsHardenedFn(derivationPaths)
     const _derivedXpubs = {}
