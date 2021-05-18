@@ -28,7 +28,7 @@ class AutoLogout extends Component<Props, {}> {
   resetTimer() {
     if (this.props.walletIsLoaded) {
       clearTimeout(this.timer)
-      this.timer = setTimeout(this.logout, ADALITE_LOGOUT_AFTER * 1000)
+      this.timer = setTimeout(this.logout, ADALITE_LOGOUT_AFTER * 500)
     }
   }
 
