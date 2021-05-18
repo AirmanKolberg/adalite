@@ -117,5 +117,3 @@ export const TREZOR_ERRORS = {
 }
 
 export const MAX_ACCOUNT_INDEX = 34
-
-export const EXPORTED_PATHS_SLICE_SIZE = 5
