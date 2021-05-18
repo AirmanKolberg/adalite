@@ -1,5 +1,5 @@
 import indexIsHardened from './indexIsHardened'
-import {HARDENED_THRESHOLD, MAX_BULK_EXPORT_AMOUNT} from './../constants'
+import {HARDENED_THRESHOLD, EXPORTED_PATHS_SLICE_SIZE} from './../constants'
 import {derivePublic as deriveChildXpub} from 'cardano-crypto.js'
 import {isShelleyPath} from '../../wallet/shelley/helpers/addresses'
 import {BIP32Path} from '../../types'
@@ -48,16 +48,25 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     return deriveChildXpub(parentXpub, lastIndex, derivationScheme.ed25519Mode)
   }
 
+  function getExportedBulkSize(currentAccountSlice: number) {
+    if (currentAccountSlice === 0) {
+      return 5
+    }
+    if (currentAccountSlice === 1) {
+      return 10
+    }
+    return 15
+  }
+
   function createPathBulk(derivationPath: BIP32Path): BIP32Path[] {
     const paths: BIP32Path[] = []
     const accountIndex = derivationPath[2] - HARDENED_THRESHOLD
-    const currentAccountPage = Math.floor(accountIndex / MAX_BULK_EXPORT_AMOUNT)
+    const currentAccountSlice = Math.floor(accountIndex / EXPORTED_PATHS_SLICE_SIZE)
+    const exportedBulkSize = getExportedBulkSize(currentAccountSlice)
 
-    // we want to scale the number of exported keys up to 3 times the MAX_BULK_EXPORT_AMOUNT
-    const nAccounts = Math.min(currentAccountPage + 1, 3) * MAX_BULK_EXPORT_AMOUNT
-
-    for (let i = 0; i < nAccounts; i += 1) {
-      const nextAccountIndex = currentAccountPage * MAX_BULK_EXPORT_AMOUNT + i + HARDENED_THRESHOLD
+    for (let i = 0; i < exportedBulkSize; i += 1) {
+      const nextAccountIndex =
+        currentAccountSlice * EXPORTED_PATHS_SLICE_SIZE + i + HARDENED_THRESHOLD
       const nextAccountPath = [...derivationPath.slice(0, -1), nextAccountIndex]
       paths.push(nextAccountPath)
     }
