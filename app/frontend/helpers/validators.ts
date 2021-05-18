@@ -10,10 +10,18 @@ const {ADALITE_MIN_DONATION_VALUE} = ADALITE_CONFIG
 const parseToLovelace = (str: string): Lovelace =>
   Math.trunc(toCoins(parseFloat(str) as Ada)) as Lovelace
 
-const sendAddressValidator = (fieldValue: string) =>
-  !(isValidShelleyAddress(fieldValue) || isValidBootstrapAddress(fieldValue)) && fieldValue !== ''
-    ? {code: InternalErrorReason.SendAddressInvalidAddress}
-    : null
+const sendAddressValidator = (fieldValue: string) => {
+  if (fieldValue === '') {
+    return null
+  }
+  if (fieldValue.startsWith('addr') && isValidShelleyAddress(fieldValue)) {
+    return null
+  }
+  if (isValidBootstrapAddress(fieldValue)) {
+    return null
+  }
+  return {code: InternalErrorReason.SendAddressInvalidAddress}
+}
 
 const sendAmountValidator = (fieldValue: string, coins: Lovelace, balance: Lovelace) => {
   const floatRegex = /^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)$/
